@@ -26,10 +26,10 @@ export default function ScreenshotSelector({
 }: ScreenshotSelectorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const { data: screenshots, refetch } = useQuery({
+  const { data: screenshots } = useQuery({
     queryKey: ["screenshots", manualId, time],
     queryFn: () => generateScreenshots(manualId, time),
-    enabled: false,
+    enabled: Boolean(time),
   });
 
   const handleGenerate = async () => {
@@ -40,21 +40,15 @@ export default function ScreenshotSelector({
 
   return (
     <div className="space-y-4">
-      {!screenshots ? (
-        <Button
-          onClick={handleGenerate}
-          disabled={isGenerating || !time}
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            "Generate Screenshots"
-          )}
-        </Button>
-      ) : (
+      {selected ? (
+        <div className="w-full max-w-xs">
+          <img
+            src={selected}
+            alt="Selected screenshot"
+            className="rounded-lg border-2 border-primary"
+          />
+        </div>
+      ) : screenshots ? (
         <Carousel className="w-full max-w-xs">
           <CarouselContent>
             {screenshots.map((path, index) => (
@@ -62,9 +56,7 @@ export default function ScreenshotSelector({
                 <img
                   src={path}
                   alt={`Screenshot ${index + 1}`}
-                  className={`rounded-lg cursor-pointer border-2 ${
-                    selected === path ? "border-primary" : "border-transparent"
-                  }`}
+                  className="rounded-lg cursor-pointer border-2 border-transparent hover:border-primary"
                   onClick={() => onSelect(path)}
                 />
               </CarouselItem>
@@ -73,7 +65,7 @@ export default function ScreenshotSelector({
           <CarouselPrevious />
           <CarouselNext />
         </Carousel>
-      )}
+      ) : null}
     </div>
   );
 }
