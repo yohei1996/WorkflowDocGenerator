@@ -30,7 +30,7 @@ export async function generateScreenshots(
   count = 5
 ): Promise<string[]> {
   if (process.env.USE_DUMMY_DATA === "true") {
-    return Array(count).fill(`${screenshotsDir}/sample.png`);
+    return Array(count).fill("/sample.png");
   }
 
   if (!fs.existsSync(videoPath)) {
