@@ -40,9 +40,6 @@ export default function ManualPreview({ manual, onSave }: ManualPreviewProps) {
     <div className="space-y-8">
       {manual.content.map((step, index) => (
         <div key={index} className="space-y-4">
-          <pre className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-          {JSON.stringify(step, null, 2)}
-        </pre>
           <h2 className="text-xl font-semibold">
             {index + 1}. {step.headline}
           </h2>
