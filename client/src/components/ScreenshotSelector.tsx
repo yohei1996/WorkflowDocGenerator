@@ -56,10 +56,18 @@ export default function ScreenshotSelector({
   const handleTimeInput = (value: string) => {
     setInputTime(value);
     
-    if (value.match(/^\d{2}:\d{2}$/)) {
-      const [minutes, seconds] = value.split(':').map(Number);
-      if (minutes < 60 && seconds < 60 && onTimeChange) {
-        const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // 入力値のバリデーションとフォーマット
+    const timeMatch = value.match(/^(\d{0,2}):?(\d{0,2})$/);
+    if (timeMatch) {
+      let [_, minutes, seconds] = timeMatch;
+      minutes = minutes.padStart(2, '0');
+      seconds = seconds.padStart(2, '0');
+      
+      const mins = parseInt(minutes, 10);
+      const secs = parseInt(seconds, 10);
+      
+      if (mins < 60 && secs < 60 && onTimeChange) {
+        const formattedTime = `${minutes}:${seconds}`;
         onTimeChange(formattedTime);
         onSelect("");
         // Force refetch screenshots for the new time
