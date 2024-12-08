@@ -49,7 +49,8 @@ export default function ScreenshotSelector({
     const newMinutes = Math.floor(totalSeconds / 60);
     const newSeconds = totalSeconds % 60;
     
-    return `${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`;
+    const formattedTime = `${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`;
+    return formattedTime;
   };
 
   const handleTimeInput = (value: string) => {
@@ -58,7 +59,8 @@ export default function ScreenshotSelector({
     if (value.match(/^\d{2}:\d{2}$/)) {
       const [minutes, seconds] = value.split(':').map(Number);
       if (minutes < 60 && seconds < 60 && onTimeChange) {
-        onTimeChange(value);
+        const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        onTimeChange(formattedTime);
         onSelect("");
         // Force refetch screenshots for the new time
         refetch();

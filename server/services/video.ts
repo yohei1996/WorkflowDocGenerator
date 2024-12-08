@@ -33,11 +33,12 @@ export async function generateScreenshots(
     const baseSeconds = parseTimestamp(timestamp);
     const screenshots: string[] = [];
     
-    // タイムスタンプをhh_mm形式に変換
+    // タイムスタンプをMM_SS形式に変換
     const minutes = Math.floor(baseSeconds / 60);
     const seconds = baseSeconds % 60;
     const timeStr = `${minutes.toString().padStart(2, '0')}_${seconds.toString().padStart(2, '0')}`;
     
+    // ファイル名を時間に基づいて生成
     const filename = `${timeStr}.png`;
     const outputPath = path.join(framesDir, filename);
 
