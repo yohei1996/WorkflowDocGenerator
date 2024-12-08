@@ -10,7 +10,7 @@ import type { ManualStep } from "../lib/types";
 
 export default function Editor() {
   const { id } = useParams();
-  const manualId = parseInt(id);
+  const manualId = parseInt(id ?? "");
   const { toast } = useToast();
 
   const { data: manual, isLoading } = useQuery({

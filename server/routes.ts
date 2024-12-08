@@ -8,6 +8,7 @@ import { db } from "../db";
 import { manuals } from "@db/schema";
 import { analyzeVideo } from "./services/gemini";
 import { generateScreenshots } from "./services/video";
+import type { Multer } from "multer";
 
 interface MulterRequest extends express.Request {
   file?: Express.Multer.File;
@@ -16,7 +17,7 @@ interface MulterRequest extends express.Request {
 // マルチパートフォームデータを処理するためのmulterの設定
 const storage = multer.diskStorage({
   destination: "uploads/",
-  filename: (req, file, cb) => {
+  filename: (req: express.Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     cb(null, file.originalname);
   },
 });
@@ -119,7 +120,9 @@ export async function registerRoutes(app: Express) {
       const screenshots = await generateScreenshots(manual.videoPath, time);
       res.json(screenshots);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to generate screenshots" 
+      });
     }
   });
 
@@ -134,7 +137,9 @@ export async function registerRoutes(app: Express) {
       
       res.json(manual[0]);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to update manual"
+      });
     }
   });
 }

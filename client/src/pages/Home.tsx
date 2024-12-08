@@ -12,19 +12,21 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
-  const handleUpload = async (file: File) => {
+  const handleUpload = async (file: string | File) => {
+    if (typeof file === 'string') return;
+    
     setIsUploading(true);
     try {
       const manual = await uploadVideo(file);
       toast({
-        title: "Upload successful",
+        title: "Upload successful", 
         description: "Redirecting to editor...",
       });
       navigate(`/edit/${manual.id}`);
     } catch (error) {
       toast({
         title: "Upload failed",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Upload failed",
         variant: "destructive",
       });
     } finally {
@@ -40,10 +42,6 @@ export default function Home() {
       
       <Card className="max-w-2xl mx-auto p-6">
         <div className="space-y-4">
-          <h2 className="text-2xl font-semibold mb-4">
-            Upload your workflow video
-          </h2>
-          
           <VideoUpload
             onUpload={handleUpload}
             disabled={isUploading}

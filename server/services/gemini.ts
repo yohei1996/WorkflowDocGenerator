@@ -10,9 +10,9 @@ async function extractFrames(videoPath: string, frameCount = 5): Promise<string[
   
   const framePaths: string[] = [];
   
-  await new Promise<void>((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     ffmpeg(videoPath)
-      .on('end', resolve)
+      .on('end', (stdout: string | null, stderr: string | null) => resolve(void 0))
       .on('error', reject)
       .screenshots({
         count: frameCount,
@@ -91,7 +91,7 @@ export async function analyzeVideo(videoPath: string) {
       framePaths.map(fileToGenerativePart)
     );
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `あなたはマニュアル作成AIエージェントです。
 これから見せる画像は動画から抽出したフレームです。
