@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card } from "./ui/card";
+import { Dialog, DialogContent } from "./ui/dialog";
 
 interface ScreenshotSelectorProps {
   manualId: number;
@@ -23,6 +24,7 @@ export default function ScreenshotSelector({
 }: ScreenshotSelectorProps) {
   const [inputTime, setInputTime] = useState(time);
   const [validTime, setValidTime] = useState(time);
+  const [showFullscreen, setShowFullscreen] = useState(false);
 
   useEffect(() => {
     setInputTime(time);
@@ -127,9 +129,21 @@ export default function ScreenshotSelector({
             <img
               src={`../frames/${inputTime.replace(':', '_')}.png`}
               alt="Selected screenshot"
-              className="rounded-lg w-full h-full object-cover aspect-video"
+              className="rounded-lg w-full h-full object-cover aspect-video cursor-pointer"
+              onClick={() => setShowFullscreen(true)}
             />
           </Card>
+
+          <Dialog open={showFullscreen} onOpenChange={setShowFullscreen}>
+            <DialogContent className="max-w-4xl p-2">
+              <img
+                src={`../frames/${inputTime.replace(':', '_')}.png`}
+                alt="Selected screenshot"
+                className="w-full h-full object-contain"
+              />
+            </DialogContent>
+          </Dialog>
+
           <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-lg p-2">
             <Button
               variant="ghost"

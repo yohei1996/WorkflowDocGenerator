@@ -95,7 +95,7 @@ export async function analyzeVideo(videoPath: string) {
     const prompt = `あなたはマニュアル作成AIエージェントです。
 与えられた動画から、マニュアルを生成するための情報を時間と対応させて生成してください。
 手順ごとにheadlineを作成し。操作内容を説明してください。
-headlineに対応する時間をtime(mm:ssの形式)として記載してください。
+headlineに対応する時間をピッタリ合うように慎重に考えてtime(mm:ssの形式)として記載してください。
 出力は英語でお願いします。
 
 以下の形式のJSONを生成してください：
