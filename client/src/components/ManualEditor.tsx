@@ -40,13 +40,6 @@ export default function ManualEditor({ manual, onSave }: ManualEditorProps) {
           <div className="border rounded-lg p-4 space-y-4">
             <div className="flex items-center gap-4">
               <Input
-                value={step.time}
-                onChange={(e) => handleStepUpdate(index, { time: e.target.value })}
-                placeholder="Time (HH:MM)"
-                className="w-32"
-              />
-              
-              <Input
                 value={step.headline}
                 onChange={(e) => handleStepUpdate(index, { headline: e.target.value })}
                 placeholder="Headline"

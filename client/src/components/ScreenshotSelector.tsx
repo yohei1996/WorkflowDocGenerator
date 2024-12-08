@@ -37,6 +37,11 @@ export default function ScreenshotSelector({
 
   // タイムスタンプを1秒進める/戻す
   const adjustTime = (currentTime: string, seconds: number): string => {
+    // 現在の時間が正しい形式でない場合は "00:00" を返す
+    if (!currentTime.match(/^\d{2}:\d{2}$/)) {
+      return "00:00";
+    }
+    
     const [minutes, secs] = currentTime.split(':').map(Number);
     let totalSeconds = minutes * 60 + secs + seconds;
     
@@ -47,6 +52,17 @@ export default function ScreenshotSelector({
     const newSeconds = totalSeconds % 60;
     
     return `${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`;
+  };
+
+  const handleTimeInput = (value: string) => {
+    // MM:SS形式のバリデーション
+    if (value.match(/^\d{2}:\d{2}$/)) {
+      const [minutes, seconds] = value.split(':').map(Number);
+      if (minutes < 60 && seconds < 60) {
+        onTimeChange(value);
+        onSelect("");
+      }
+    }
   };
 
   if (selected) {
@@ -79,8 +95,7 @@ export default function ScreenshotSelector({
               value={time}
               onChange={(e) => {
                 if (onTimeChange) {
-                  onTimeChange(e.target.value);
-                  onSelect("");
+                  handleTimeInput(e.target.value);
                 }
               }}
               className="w-20 h-6 text-center text-sm"
