@@ -9,16 +9,15 @@ if (!fs.existsSync(framesDir)) {
 }
 
 function parseTimestamp(timestamp: string): number {
-  const parts = timestamp.split(":");
-  if (parts.length !== 2) {
-    throw new Error("Invalid timestamp format. Expected format: MM:SS");
+  // MM:SS形式かチェック
+  if (!/^\d{2}:\d{2}$/.test(timestamp)) {
+    throw new Error("Invalid timestamp format. Expected format: MM:SS (e.g., 05:30)");
   }
   
-  const minutes = parseInt(parts[0], 10);
-  const seconds = parseInt(parts[1], 10);
+  const [minutes, seconds] = timestamp.split(":").map(part => parseInt(part, 10));
   
-  if (isNaN(minutes) || isNaN(seconds) || seconds >= 60) {
-    throw new Error("Invalid timestamp values");
+  if (isNaN(minutes) || isNaN(seconds) || seconds >= 60 || minutes >= 60) {
+    throw new Error("Invalid timestamp values. Minutes and seconds must be between 00-59");
   }
   
   return minutes * 60 + seconds;

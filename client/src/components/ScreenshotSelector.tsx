@@ -67,21 +67,28 @@ export default function ScreenshotSelector({
   }
 
   return (
-    <Carousel className="w-full max-w-xs">
-      <CarouselContent>
-        {screenshots.map((path, index) => (
-          <CarouselItem key={index}>
-            <img
-              src={path}
-              alt={`Screenshot ${index + 1}`}
-              className="rounded-lg cursor-pointer border-2 border-transparent hover:border-primary"
-              onClick={() => onSelect(path)}
-            />
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
+    <div className="space-y-4">
+      <Carousel className="w-full max-w-xs">
+        <CarouselContent>
+          {screenshots.map((path, index) => (
+            <CarouselItem key={index}>
+              <div className="relative aspect-video">
+                <img
+                  src={path}
+                  alt={`Screenshot ${index + 1}`}
+                  className="rounded-lg cursor-pointer border-2 border-transparent hover:border-primary w-full h-full object-cover"
+                  onClick={() => onSelect(path)}
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+      <div className="text-sm text-muted-foreground text-center">
+        クリックしてスクリーンショットを選択
+      </div>
+    </div>
   );
 }
