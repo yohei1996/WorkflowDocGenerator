@@ -41,9 +41,9 @@ export default function ScreenshotSelector({
     }
   }, [screenshots, selected, onSelect]);
 
-  const adjustTime = (timestamp: string, seconds: number): string => {
+  const adjustTime = (timestamp: string, direction: 'prev' | 'next'): string => {
     const [minutes, secs] = timestamp.split(':').map(Number);
-    let totalSeconds = minutes * 60 + secs + seconds;
+    let totalSeconds = minutes * 60 + secs + (direction === 'next' ? 1 : -1);
     totalSeconds = Math.max(0, totalSeconds);
     
     const newMinutes = Math.floor(totalSeconds / 60);
@@ -69,7 +69,7 @@ export default function ScreenshotSelector({
   const handleTimeAdjust = (direction: 'prev' | 'next') => {
     if (!time || !onTimeChange) return;
     
-    const newTime = adjustTime(time, direction === 'prev' ? -1 : 1);
+    const newTime = adjustTime(time, direction);
     onTimeChange(newTime);
     onSelect("");
     // Force refetch screenshots for the new time
