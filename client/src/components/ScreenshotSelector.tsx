@@ -41,7 +41,7 @@ export default function ScreenshotSelector({
         <img
           src={selected}
           alt="Selected screenshot"
-          className="rounded-lg border-2 border-primary w-full h-full object-cover"
+          className="rounded-lg border-2 border-primary w-full h-full object-cover aspect-video"
         />
       </div>
     );
