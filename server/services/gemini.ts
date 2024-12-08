@@ -41,6 +41,38 @@ async function fileToGenerativePart(path: string) {
 }
 
 export async function analyzeVideo(videoPath: string) {
+  // If USE_DUMMY_DATA is set, return dummy manual steps
+  if (process.env.USE_DUMMY_DATA === "true") {
+    console.log("Using dummy data for video analysis");
+    return [
+      {
+        time: "00:00",
+        headline: "アプリケーションの起動",
+        description: "デスクトップ上のアイコンをダブルクリックし、アプリケーションを起動します。",
+      },
+      {
+        time: "00:05",
+        headline: "ログイン画面",
+        description: "ユーザー名とパスワードを入力して、ログインボタンをクリックします。",
+      },
+      {
+        time: "00:10",
+        headline: "メインメニュー",
+        description: "左側のメニューから必要な機能を選択します。",
+      },
+      {
+        time: "00:15",
+        headline: "設定画面",
+        description: "歯車アイコンをクリックして設定画面を開きます。",
+      },
+      {
+        time: "00:20",
+        headline: "完了",
+        description: "設定が完了したら、保存ボタンをクリックして変更を適用します。",
+      }
+    ];
+  }
+
   if (!process.env.GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY is not set");
   }
