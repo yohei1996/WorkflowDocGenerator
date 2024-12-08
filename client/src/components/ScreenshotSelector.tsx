@@ -86,11 +86,27 @@ export default function ScreenshotSelector({
     if (!validTime || !onTimeChange) return;
     
     const newTime = adjustTime(validTime, direction);
-    setValidTime(newTime);
     setInputTime(newTime);
-    onTimeChange(newTime);
-    onSelect("");
-    refetch();
+    
+    const timeMatch = newTime.match(/^(\d{0,2}):?(\d{0,2})$/);
+    if (timeMatch) {
+      let [_, minutes, seconds] = timeMatch;
+      minutes = minutes.padStart(2, '0');
+      seconds = seconds.padStart(2, '0');
+      
+      const mins = parseInt(minutes, 10);
+      const secs = parseInt(seconds, 10);
+      
+      if (mins < 60 && secs < 60 && onTimeChange) {
+        const formattedTime = `${minutes}:${seconds}`;
+        if (formattedTime.match(/^\d{2}:\d{2}$/)) {
+          setValidTime(formattedTime);
+          onTimeChange(formattedTime);
+          onSelect("");
+          refetch();
+        }
+      }
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -109,7 +125,7 @@ export default function ScreenshotSelector({
         <div className="relative">
           <Card className="p-2">
             <img
-              src={selected}
+              src={`../frames/${inputTime.replace(':', '_')}.png`}
               alt="Selected screenshot"
               className="rounded-lg w-full h-full object-cover aspect-video"
             />

@@ -90,27 +90,33 @@ export async function analyzeVideo(videoPath: string) {
     const generativeParts = await Promise.all(
       framePaths.map(fileToGenerativePart)
     );
-
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-exp-1206" });
 
     const prompt = `あなたはマニュアル作成AIエージェントです。
 これから見せる画像は動画から抽出したフレームです。
 これらの画像から、マニュアルを生成するためのJSONを生成してください。
 手順ごとに見出しを作成して操作内容を説明してください。
-見出しごとに画面スクショを取るタイミングの時間(hh:mm)を記載してください。
+headlineに対応する時間をtime(mm:ssの形式)として記載してください。
+
+1. 必ず有効なJSONを出力してください
+2. コードブロックや追加のテキストは含めないでください
+3.出力は英語でお願いします。
 
 以下の形式のJSONを生成してください：
 [
   {
-    "time": "00:00",
-    "headline": "手順の見出し",
-    "description": "手順の詳細な説明"
-  }
+    time: "00:00",
+    headline: "$operation screeen title",
+    description: "$operation detail",
+  },
+  ...
 ]`;
 
     const result = await model.generateContent([prompt, ...generativeParts]);
     const response = await result.response;
-    const text = response.text();
+    const text = response.text()
+    .replace(/```json|```/g, '') // JSONブロックの削除
+    .trim() // 余分な空白の削除
     
     // Clean up frames
     await Promise.all(framePaths.map(path => fs.unlink(path)));
