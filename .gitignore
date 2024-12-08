@@ -4,3 +4,19 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# すべてのPNGファイルを除外
+*.png
+
+# 特定のディレクトリ内のPNGファイルのみ除外
+images/*.png
+assets/images/*.png
+
+# 特定のPNGファイルは除外しない（除外設定を上書き）
+!logo.png
+!assets/important-image.png
+
+# すべてのサブディレクトリ内のPNGファイルを除外
+**/*.png
+# 環境変数ファイル
+.env
