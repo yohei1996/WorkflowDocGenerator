@@ -25,13 +25,13 @@ export default function ManualEditor({ manual, onSave }: ManualEditorProps) {
   };
 
   return (
-    <div className="grid grid-cols-[1fr,400px] gap-6">
-      <div className="space-y-6">
-        {steps.map((step, index) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 space-y-4"
-          >
+    <div className="space-y-6">
+      {steps.map((step, index) => (
+        <div
+          key={index}
+          className="grid grid-cols-[1fr,400px] gap-6"
+        >
+          <div className="border rounded-lg p-4 space-y-4">
             <div className="flex items-center gap-4">
               <Input
                 value={step.time}
@@ -54,34 +54,34 @@ export default function ManualEditor({ manual, onSave }: ManualEditorProps) {
               placeholder="Description"
             />
           </div>
-        ))}
-        
-        <div className="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setSteps([...steps, {
-              time: "",
-              headline: "",
-              description: "",
-            }])}
-          >
-            Add Step
-          </Button>
-          
-          <Button onClick={() => onSave(steps)}>
-            Save Changes
-          </Button>
-        </div>
-      </div>
 
-      <div className="space-y-4">
-        <div className="font-medium mb-2">Screenshot Preview</div>
-        <ScreenshotSelector
-          manualId={manual.id}
-          time={steps[editingIndex]?.time || ""}
-          selected={steps[editingIndex]?.screenshotPath}
-          onSelect={(path) => handleScreenshotSelect(editingIndex || 0, path)}
-        />
+          <div className="space-y-4">
+            <div className="font-medium mb-2">Screenshot Preview</div>
+            <ScreenshotSelector
+              manualId={manual.id}
+              time={step.time}
+              selected={step.screenshotPath}
+              onSelect={(path) => handleScreenshotSelect(index, path)}
+            />
+          </div>
+        </div>
+      ))}
+      
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={() => setSteps([...steps, {
+            time: "",
+            headline: "",
+            description: "",
+          }])}
+        >
+          Add Step
+        </Button>
+        
+        <Button onClick={() => onSave(steps)}>
+          Save Changes
+        </Button>
       </div>
     </div>
   );
