@@ -21,6 +21,12 @@ export default function ScreenshotSelector({
   onSelect,
   onTimeChange,
 }: ScreenshotSelectorProps) {
+  const [inputTime, setInputTime] = useState(time);
+
+  useEffect(() => {
+    setInputTime(time);
+  }, [time]);
+
   const { data: screenshots, isLoading } = useQuery({
     queryKey: ["screenshots", manualId, time],
     queryFn: () => generateScreenshots(manualId, time),
@@ -35,17 +41,9 @@ export default function ScreenshotSelector({
     }
   }, [screenshots, selected, onSelect]);
 
-  // タイムスタンプを1秒進める/戻す
-  const adjustTime = (currentTime: string, seconds: number): string => {
-    // 現在の時間が正しい形式でない場合は "00:00" を返す
-    if (!currentTime.match(/^\d{2}:\d{2}$/)) {
-      return "00:00";
-    }
-    
-    const [minutes, secs] = currentTime.split(':').map(Number);
+  const adjustTime = (timestamp: string, seconds: number): string => {
+    const [minutes, secs] = timestamp.split(':').map(Number);
     let totalSeconds = minutes * 60 + secs + seconds;
-    
-    // 負の値にならないようにする
     totalSeconds = Math.max(0, totalSeconds);
     
     const newMinutes = Math.floor(totalSeconds / 60);
@@ -55,16 +53,23 @@ export default function ScreenshotSelector({
   };
 
   const handleTimeInput = (value: string) => {
-    if (!onTimeChange) return;
-
-    // MM:SS形式のバリデーション
+    setInputTime(value);
+    
     if (value.match(/^\d{2}:\d{2}$/)) {
       const [minutes, seconds] = value.split(':').map(Number);
-      if (minutes < 60 && seconds < 60) {
+      if (minutes < 60 && seconds < 60 && onTimeChange) {
         onTimeChange(value);
         onSelect("");
       }
     }
+  };
+
+  const handleTimeAdjust = (direction: 'prev' | 'next') => {
+    if (!time || !onTimeChange) return;
+    
+    const newTime = adjustTime(time, direction === 'prev' ? -1 : 1);
+    onTimeChange(newTime);
+    onSelect("");
   };
 
   if (selected) {
@@ -83,18 +88,12 @@ export default function ScreenshotSelector({
               variant="ghost"
               size="icon"
               className="h-6 w-6"
-              onClick={() => {
-                if (time && onTimeChange) {
-                  const newTime = adjustTime(time, -1);
-                  onTimeChange(newTime);
-                  onSelect("");
-                }
-              }}
+              onClick={() => handleTimeAdjust('prev')}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Input
-              value={time}
+              value={inputTime}
               onChange={(e) => handleTimeInput(e.target.value)}
               className="w-20 h-6 text-center text-sm"
               placeholder="MM:SS"
@@ -103,13 +102,7 @@ export default function ScreenshotSelector({
               variant="ghost"
               size="icon"
               className="h-6 w-6"
-              onClick={() => {
-                if (time && onTimeChange) {
-                  const newTime = adjustTime(time, 1);
-                  onTimeChange(newTime);
-                  onSelect("");
-                }
-              }}
+              onClick={() => handleTimeAdjust('next')}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
