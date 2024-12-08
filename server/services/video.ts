@@ -1,10 +1,29 @@
 import ffmpeg from "fluent-ffmpeg";
 
+import * as fs from "fs";
+
+// Ensure screenshots directory exists
+const screenshotsDir = "screenshots";
+if (!fs.existsSync(screenshotsDir)) {
+  fs.mkdirSync(screenshotsDir, { recursive: true });
+}
+
+// Copy the sample image to screenshots directory
+const sampleImagePath = "image.png";
+if (fs.existsSync(sampleImagePath)) {
+  fs.copyFileSync(sampleImagePath, `${screenshotsDir}/sample.png`);
+}
+
 export async function generateScreenshots(
   videoPath: string,
   timestamp: string,
   count = 5
 ): Promise<string[]> {
+  // If USE_DUMMY_DATA is true, return predefined screenshot paths
+  if (process.env.USE_DUMMY_DATA === "true") {
+    return Array(count).fill(`${screenshotsDir}/sample.png`);
+  }
+
   const screenshots: string[] = [];
   
   // Convert timestamp to seconds
@@ -16,7 +35,7 @@ export async function generateScreenshots(
   
   for (const offset of offsets) {
     const time = Math.max(0, seconds + offset);
-    const outputPath = `screenshots/${Date.now()}-${offset}.jpg`;
+    const outputPath = `${screenshotsDir}/${Date.now()}-${offset}.jpg`;
     
     await new Promise<void>((resolve, reject) => {
       ffmpeg(videoPath)
