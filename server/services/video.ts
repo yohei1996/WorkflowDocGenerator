@@ -2,10 +2,10 @@ import ffmpeg from "fluent-ffmpeg";
 import * as fs from "fs";
 import * as path from "path";
 
-// Ensure screenshots directory exists
-const screenshotsDir = "screenshots";
-if (!fs.existsSync(screenshotsDir)) {
-  fs.mkdirSync(screenshotsDir, { recursive: true });
+// Ensure frames directory exists
+const framesDir = "uploads/frames";
+if (!fs.existsSync(framesDir)) {
+  fs.mkdirSync(framesDir, { recursive: true });
 }
 
 function parseTimestamp(timestamp: string): number {
@@ -30,7 +30,7 @@ export async function generateScreenshots(
   count = 5
 ): Promise<string[]> {
   if (process.env.USE_DUMMY_DATA === "true") {
-    return Array(count).fill("/sample.png");
+    return Array(count).fill("/frames/sample.png");
   }
 
   if (!fs.existsSync(videoPath)) {
@@ -44,30 +44,29 @@ export async function generateScreenshots(
 
     for (const offset of offsets) {
       const time = Math.max(0, baseSeconds + offset);
-      const outputPath = path.join(
-        screenshotsDir, 
-        `${path.parse(videoPath).name}-${Date.now()}-${offset}.jpg`
-      );
+      const filename = `${path.parse(videoPath).name}-${Date.now()}-${offset}.jpg`;
+      const outputPath = path.join(framesDir, filename);
 
       await new Promise<void>((resolve, reject) => {
         ffmpeg(videoPath)
           .screenshots({
             timestamps: [time],
-            filename: path.basename(outputPath),
-            folder: screenshotsDir,
+            filename: filename,
+            folder: framesDir,
             size: "1280x720"
           })
           .on("end", () => {
-            console.log(`Generated screenshot: ${outputPath}`);
+            console.log(`Generated frame: ${outputPath}`);
             resolve();
           })
           .on("error", (err) => {
-            console.error(`Screenshot generation error: ${err.message}`);
+            console.error(`Frame generation error: ${err.message}`);
             reject(err);
           });
       });
 
-      screenshots.push(outputPath);
+      // フレームへのURLパスを返す
+      screenshots.push(`/frames/${filename}`);
     }
 
     return screenshots;

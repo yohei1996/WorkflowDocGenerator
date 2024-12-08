@@ -36,7 +36,10 @@ const upload = multer({
   }
 });
 
+import express from "express";
+
 export function registerRoutes(app: Express) {
+  app.use('/frames', express.static('uploads/frames'));
   // Upload video and analyze
   app.post("/api/upload", upload.single("video"), async (req: MulterRequest, res) => {
     try {
