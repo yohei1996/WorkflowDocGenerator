@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { generateScreenshots } from "../lib/api";
-import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -9,7 +8,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Loader2 } from "lucide-react";
 
 interface ScreenshotSelectorProps {
   manualId: number;
@@ -24,48 +22,50 @@ export default function ScreenshotSelector({
   selected,
   onSelect,
 }: ScreenshotSelectorProps) {
-  const [isGenerating, setIsGenerating] = useState(false);
-
   const { data: screenshots } = useQuery({
     queryKey: ["screenshots", manualId, time],
     queryFn: () => generateScreenshots(manualId, time),
     enabled: Boolean(time),
   });
 
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-    await refetch();
-    setIsGenerating(false);
-  };
+  useEffect(() => {
+    if (screenshots && screenshots.length > 0 && !selected) {
+      onSelect(screenshots[0]);
+    }
+  }, [screenshots, selected, onSelect]);
+
+  if (selected) {
+    return (
+      <div className="w-full max-w-xs">
+        <img
+          src={selected}
+          alt="Selected screenshot"
+          className="rounded-lg border-2 border-primary"
+        />
+      </div>
+    );
+  }
+
+  if (!screenshots || screenshots.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="space-y-4">
-      {selected ? (
-        <div className="w-full max-w-xs">
-          <img
-            src={selected}
-            alt="Selected screenshot"
-            className="rounded-lg border-2 border-primary"
-          />
-        </div>
-      ) : screenshots ? (
-        <Carousel className="w-full max-w-xs">
-          <CarouselContent>
-            {screenshots.map((path, index) => (
-              <CarouselItem key={index}>
-                <img
-                  src={path}
-                  alt={`Screenshot ${index + 1}`}
-                  className="rounded-lg cursor-pointer border-2 border-transparent hover:border-primary"
-                  onClick={() => onSelect(path)}
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-      ) : null}
-    </div>
+    <Carousel className="w-full max-w-xs">
+      <CarouselContent>
+        {screenshots.map((path, index) => (
+          <CarouselItem key={index}>
+            <img
+              src={path}
+              alt={`Screenshot ${index + 1}`}
+              className="rounded-lg cursor-pointer border-2 border-transparent hover:border-primary"
+              onClick={() => onSelect(path)}
+            />
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+    </Carousel>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import type { Manual, ManualStep } from "../lib/types";
+import { marked } from "marked";
 
 interface ManualPreviewProps {
   manual: Manual;
