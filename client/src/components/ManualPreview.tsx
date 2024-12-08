@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
 import type { Manual, ManualStep } from "../lib/types";
 import { marked } from "marked";
 
@@ -22,7 +23,6 @@ export default function ManualPreview({ manual, onSave }: ManualPreviewProps) {
       md += `## ${index + 1}. ${step.headline}\n\n`;
       
       if (step.screenshotPath) {
-        // フレームパスをそのまま使用
         md += `![Step ${index + 1}](${step.screenshotPath})\n\n`;
       }
       
@@ -37,11 +37,40 @@ export default function ManualPreview({ manual, onSave }: ManualPreviewProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="prose max-w-none dark:prose-invert">
-        <div dangerouslySetInnerHTML={{ 
-          __html: marked(markdown) 
-        }} />
+    <div className="space-y-8">
+      {manual.content.map((step, index) => (
+        <div key={index} className="space-y-4">
+          <pre className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+          {JSON.stringify(step, null, 2)}
+        </pre>
+          <h2 className="text-xl font-semibold">
+            {index + 1}. {step.headline}
+          </h2>
+          
+          {step.screenshotPath && (
+            <div className="w-full max-w-xs">
+              <Card className="p-2">
+                <img
+                  src={step.screenshotPath}
+                  alt={`Step ${index + 1}`}
+                  className="rounded-lg w-full h-full object-cover aspect-video"
+                />
+              </Card>
+            </div>
+          )}
+          
+          <p className="text-gray-700 dark:text-gray-300">
+            {step.description}
+          </p>
+        </div>
+      ))}
+      
+      <div className="hidden">
+        <div className="prose max-w-none dark:prose-invert">
+          <div dangerouslySetInnerHTML={{ 
+            __html: marked(markdown) 
+          }} />
+        </div>
       </div>
       
       <div className="flex justify-end">

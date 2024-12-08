@@ -22,15 +22,19 @@ export default function ScreenshotSelector({
   onTimeChange,
 }: ScreenshotSelectorProps) {
   const [inputTime, setInputTime] = useState(time);
+  const [validTime, setValidTime] = useState(time);
 
   useEffect(() => {
     setInputTime(time);
+    if (time.match(/^\d{2}:\d{2}$/)) {
+      setValidTime(time);
+    }
   }, [time]);
 
   const { data: screenshots, isLoading, refetch } = useQuery({
-    queryKey: ["screenshots", manualId, time],
-    queryFn: () => generateScreenshots(manualId, time),
-    enabled: Boolean(time && time.match(/^\d{2}:\d{2}$/)),
+    queryKey: ["screenshots", manualId, validTime],
+    queryFn: () => generateScreenshots(manualId, validTime),
+    enabled: Boolean(manualId && validTime && validTime.match(/^\d{2}:\d{2}$/)),
     refetchOnWindowFocus: false,
     staleTime: Infinity,
   });
@@ -68,17 +72,22 @@ export default function ScreenshotSelector({
       
       if (mins < 60 && secs < 60 && onTimeChange) {
         const formattedTime = `${minutes}:${seconds}`;
-        onTimeChange(formattedTime);
-        onSelect("");
-        refetch();
+        if (formattedTime.match(/^\d{2}:\d{2}$/)) {
+          setValidTime(formattedTime);
+          onTimeChange(formattedTime);
+          onSelect("");
+          refetch();
+        }
       }
     }
   };
 
   const handleTimeAdjust = (direction: 'prev' | 'next') => {
-    if (!time || !onTimeChange) return;
+    if (!validTime || !onTimeChange) return;
     
-    const newTime = adjustTime(time, direction);
+    const newTime = adjustTime(validTime, direction);
+    setValidTime(newTime);
+    setInputTime(newTime);
     onTimeChange(newTime);
     onSelect("");
     refetch();
@@ -141,7 +150,16 @@ export default function ScreenshotSelector({
       <div className="w-full max-w-xs flex items-center justify-center p-4">
         <svg className="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        {time ? "スクリーンショットを生成できませんでした" : "タイムスタンプを入力してください"}
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    );
+  }
+
+  if (!screenshots || screenshots.length === 0) {
+    return (
+      <div className="w-full max-w-xs p-4 text-center text-muted-foreground">
+        {validTime ? "スクリーンショットを生成できませんでした" : "タイムスタンプを入力してください"}
       </div>
     );
   }
