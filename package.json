@@ -50,7 +50,7 @@
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.36.0",
     "drizzle-zod": "^0.5.1",
-    "embla-carousel-react": "^8.3.0",
+    "embla-carousel-react": "^8.5.1",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
     "ffmpeg-static": "^5.2.0",
