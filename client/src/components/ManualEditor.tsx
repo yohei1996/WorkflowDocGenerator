@@ -68,6 +68,7 @@ export default function ManualEditor({ manual, onSave }: ManualEditorProps) {
               time={step.time}
               selected={step.screenshotPath}
               onSelect={(path) => handleScreenshotSelect(index, path)}
+              onTimeChange={(newTime) => handleStepUpdate(index, { time: newTime })}
             />
           </div>
         </div>

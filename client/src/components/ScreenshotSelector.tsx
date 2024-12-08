@@ -1,19 +1,16 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { generateScreenshots } from "../lib/api";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface ScreenshotSelectorProps {
   manualId: number;
   time: string;
   selected?: string;
   onSelect: (path: string) => void;
+  onTimeChange?: (newTime: string) => void;
 }
 
 export default function ScreenshotSelector({
@@ -21,6 +18,7 @@ export default function ScreenshotSelector({
   time,
   selected,
   onSelect,
+  onTimeChange,
 }: ScreenshotSelectorProps) {
   const { data: screenshots, isLoading } = useQuery({
     queryKey: ["screenshots", manualId, time],
@@ -36,14 +34,59 @@ export default function ScreenshotSelector({
     }
   }, [screenshots, selected, onSelect]);
 
+  // タイムスタンプを1秒進める/戻す
+  const adjustTime = (currentTime: string, seconds: number): string => {
+    const [minutes, secs] = currentTime.split(':').map(Number);
+    let totalSeconds = minutes * 60 + secs + seconds;
+    
+    // 負の値にならないようにする
+    totalSeconds = Math.max(0, totalSeconds);
+    
+    const newMinutes = Math.floor(totalSeconds / 60);
+    const newSeconds = totalSeconds % 60;
+    
+    return `${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`;
+  };
+
   if (selected) {
     return (
-      <div className="w-full max-w-xs">
-        <img
-          src={selected}
-          alt="Selected screenshot"
-          className="rounded-lg border-2 border-primary w-full h-full object-cover aspect-video"
-        />
+      <div className="w-full max-w-xs space-y-2">
+        <Card className="p-2">
+          <img
+            src={selected}
+            alt="Selected screenshot"
+            className="rounded-lg w-full h-full object-cover aspect-video"
+          />
+        </Card>
+        <div className="flex justify-between items-center">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => {
+              if (time && onTimeChange) {
+                const newTime = adjustTime(time, -1);
+                onTimeChange(newTime);
+                onSelect("");
+              }
+            }}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm font-medium">{time}</span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => {
+              if (time && onTimeChange) {
+                const newTime = adjustTime(time, 1);
+                onTimeChange(newTime);
+                onSelect("");
+              }
+            }}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     );
   }
