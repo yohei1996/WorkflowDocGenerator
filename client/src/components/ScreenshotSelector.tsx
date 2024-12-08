@@ -27,7 +27,7 @@ export default function ScreenshotSelector({
     setInputTime(time);
   }, [time]);
 
-  const { data: screenshots, isLoading } = useQuery({
+  const { data: screenshots, isLoading, refetch } = useQuery({
     queryKey: ["screenshots", manualId, time],
     queryFn: () => generateScreenshots(manualId, time),
     enabled: Boolean(time && time.match(/^\d{2}:\d{2}$/)),
@@ -60,6 +60,8 @@ export default function ScreenshotSelector({
       if (minutes < 60 && seconds < 60 && onTimeChange) {
         onTimeChange(value);
         onSelect("");
+        // Force refetch screenshots for the new time
+        refetch();
       }
     }
   };
@@ -70,6 +72,8 @@ export default function ScreenshotSelector({
     const newTime = adjustTime(time, direction === 'prev' ? -1 : 1);
     onTimeChange(newTime);
     onSelect("");
+    // Force refetch screenshots for the new time
+    refetch();
   };
 
   if (selected) {
