@@ -49,26 +49,31 @@ export async function analyzeVideo(videoPath: string) {
         time: "00:00",
         headline: "アプリケーションの起動",
         description: "デスクトップ上のアイコンをダブルクリックし、アプリケーションを起動します。",
+        screenshotPath: "screenshots/sample.png"
       },
       {
         time: "00:05",
         headline: "ログイン画面",
         description: "ユーザー名とパスワードを入力して、ログインボタンをクリックします。",
+        screenshotPath: "screenshots/sample.png"
       },
       {
         time: "00:10",
         headline: "メインメニュー",
         description: "左側のメニューから必要な機能を選択します。",
+        screenshotPath: "screenshots/sample.png"
       },
       {
         time: "00:15",
         headline: "設定画面",
         description: "歯車アイコンをクリックして設定画面を開きます。",
+        screenshotPath: "screenshots/sample.png"
       },
       {
         time: "00:20",
         headline: "完了",
         description: "設定が完了したら、保存ボタンをクリックして変更を適用します。",
+        screenshotPath: "screenshots/sample.png"
       }
     ];
   }
