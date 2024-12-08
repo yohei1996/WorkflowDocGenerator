@@ -22,6 +22,7 @@ export default function ManualPreview({ manual, onSave }: ManualPreviewProps) {
       md += `## ${index + 1}. ${step.headline}\n\n`;
       
       if (step.screenshotPath) {
+        // フレームパスをそのまま使用
         md += `![Step ${index + 1}](${step.screenshotPath})\n\n`;
       }
       
