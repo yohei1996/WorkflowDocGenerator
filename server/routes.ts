@@ -37,9 +37,12 @@ const upload = multer({
 });
 
 import express from "express";
+import path from "path";
 
 export function registerRoutes(app: Express) {
-  app.use('/frames', express.static('uploads/frames'));
+  // フレーム画像を提供するための静的ファイルの設定
+  const framesPath = path.join(process.cwd(), 'uploads/frames');
+  app.use('/frames', express.static(framesPath));
   // Upload video and analyze
   app.post("/api/upload", upload.single("video"), async (req: MulterRequest, res) => {
     try {

@@ -29,8 +29,42 @@ export async function generateScreenshots(
   timestamp: string,
   count = 5
 ): Promise<string[]> {
-  if (process.env.USE_DUMMY_DATA === "true") {
-    return Array(count).fill("/frames/sample.png");
+  // フレームを生成して保存
+  try {
+    const baseSeconds = parseTimestamp(timestamp);
+    const screenshots: string[] = [];
+    const offsets = [-2, -1, 0, 1, 2];
+
+    for (const offset of offsets) {
+      const time = Math.max(0, baseSeconds + offset);
+      const filename = `${path.parse(videoPath).name}-${Date.now()}-${offset}.jpg`;
+      const outputPath = path.join(framesDir, filename);
+
+      await new Promise<void>((resolve, reject) => {
+        ffmpeg(videoPath)
+          .screenshots({
+            timestamps: [time],
+            filename: filename,
+            folder: framesDir,
+            size: "1280x720"
+          })
+          .on("end", () => {
+            console.log(`Generated frame: ${outputPath}`);
+            resolve();
+          })
+          .on("error", (err) => {
+            console.error(`Frame generation error: ${err.message}`);
+            reject(err);
+          });
+      });
+
+      screenshots.push(`/frames/${filename}`);
+    }
+
+    return screenshots;
+  } catch (error) {
+    console.error("Screenshot generation failed:", error);
+    throw error;
   }
 
   if (!fs.existsSync(videoPath)) {
