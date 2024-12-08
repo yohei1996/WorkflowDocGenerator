@@ -51,41 +51,55 @@ export default function ScreenshotSelector({
   if (selected) {
     return (
       <div className="w-full max-w-xs space-y-2">
-        <Card className="p-2">
-          <img
-            src={selected}
-            alt="Selected screenshot"
-            className="rounded-lg w-full h-full object-cover aspect-video"
-          />
-        </Card>
-        <div className="flex justify-between items-center">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => {
-              if (time && onTimeChange) {
-                const newTime = adjustTime(time, -1);
-                onTimeChange(newTime);
-                onSelect("");
-              }
-            }}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm font-medium">{time}</span>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => {
-              if (time && onTimeChange) {
-                const newTime = adjustTime(time, 1);
-                onTimeChange(newTime);
-                onSelect("");
-              }
-            }}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+        <div className="relative">
+          <Card className="p-2">
+            <img
+              src={selected}
+              alt="Selected screenshot"
+              className="rounded-lg w-full h-full object-cover aspect-video"
+            />
+          </Card>
+          <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-lg p-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => {
+                if (time && onTimeChange) {
+                  const newTime = adjustTime(time, -1);
+                  onTimeChange(newTime);
+                  onSelect("");
+                }
+              }}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Input
+              value={time}
+              onChange={(e) => {
+                if (onTimeChange) {
+                  onTimeChange(e.target.value);
+                  onSelect("");
+                }
+              }}
+              className="w-20 h-6 text-center text-sm"
+              placeholder="MM:SS"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => {
+                if (time && onTimeChange) {
+                  const newTime = adjustTime(time, 1);
+                  onTimeChange(newTime);
+                  onSelect("");
+                }
+              }}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -114,7 +128,11 @@ export default function ScreenshotSelector({
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-2">
         {screenshots.map((path, index) => (
-          <Card key={index} className="p-1 cursor-pointer hover:ring-2 hover:ring-primary" onClick={() => onSelect(path)}>
+          <Card 
+            key={index} 
+            className="p-1 cursor-pointer hover:ring-2 hover:ring-primary relative" 
+            onClick={() => onSelect(path)}
+          >
             <img
               src={path}
               alt={`Screenshot ${index + 1}`}
