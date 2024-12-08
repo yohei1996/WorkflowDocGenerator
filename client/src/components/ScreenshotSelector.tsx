@@ -55,11 +55,13 @@ export default function ScreenshotSelector({
   };
 
   const handleTimeInput = (value: string) => {
+    if (!onTimeChange) return;
+
     // MM:SS形式のバリデーション
     if (value.match(/^\d{2}:\d{2}$/)) {
       const [minutes, seconds] = value.split(':').map(Number);
       if (minutes < 60 && seconds < 60) {
-        onTimeChange?.(value);
+        onTimeChange(value);
         onSelect("");
       }
     }
@@ -93,11 +95,7 @@ export default function ScreenshotSelector({
             </Button>
             <Input
               value={time}
-              onChange={(e) => {
-                if (onTimeChange) {
-                  handleTimeInput(e.target.value);
-                }
-              }}
+              onChange={(e) => handleTimeInput(e.target.value)}
               className="w-20 h-6 text-center text-sm"
               placeholder="MM:SS"
             />
