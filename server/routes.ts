@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import multer from "multer";
 import { db } from "../db";
 import { manuals } from "@db/schema";
@@ -6,8 +6,20 @@ import { analyzeVideo } from "./services/gemini";
 import { generateScreenshots } from "./services/video";
 import { eq } from "drizzle-orm";
 
+interface MulterRequest extends Request {
+  file?: Express.Multer.File;
+}
+
+import * as fs from "fs";
+
+// Ensure uploads directory exists
+const uploadsDir = "uploads";
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
-  destination: "uploads/",
+  destination: uploadsDir,
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
   }
@@ -26,13 +38,16 @@ const upload = multer({
 
 export function registerRoutes(app: Express) {
   // Upload video and analyze
-  app.post("/api/upload", upload.single("video"), async (req, res) => {
+  app.post("/api/upload", upload.single("video"), async (req: MulterRequest, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No video uploaded" });
       }
 
+      console.log("Video uploaded:", req.file.path);
+      
       const analysis = await analyzeVideo(req.file.path);
+      console.log("Video analysis completed");
       
       const manual = await db.insert(manuals).values({
         title: req.file.originalname,
@@ -40,9 +55,13 @@ export function registerRoutes(app: Express) {
         content: analysis,
       }).returning();
 
+      console.log("Manual created:", manual[0].id);
       res.json(manual[0]);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error("Upload error:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to process video" 
+      });
     }
   });
 
