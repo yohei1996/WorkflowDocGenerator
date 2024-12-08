@@ -1,63 +1,83 @@
-import type { Express, Request } from "express";
+import express, { type Express } from "express";
+import path from "path";
+import fs from "fs/promises";
+import { mkdir } from "fs/promises";
 import multer from "multer";
+import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { manuals } from "@db/schema";
 import { analyzeVideo } from "./services/gemini";
 import { generateScreenshots } from "./services/video";
-import { eq } from "drizzle-orm";
 
-interface MulterRequest extends Request {
+interface MulterRequest extends express.Request {
   file?: Express.Multer.File;
 }
 
-import * as fs from "fs";
-
-// Ensure uploads directory exists
-const uploadsDir = "uploads";
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
+// マルチパートフォームデータを処理するためのmulterの設定
 const storage = multer.diskStorage({
-  destination: uploadsDir,
+  destination: "uploads/",
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  }
+    cb(null, file.originalname);
+  },
 });
 
-const upload = multer({ 
-  storage,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === "video/quicktime") {
-      cb(null, true);
-    } else {
-      cb(new Error("Only MOV files are allowed"));
-    }
-  }
-});
+const upload = multer({ storage });
 
-import express from "express";
-import path from "path";
-
-export function registerRoutes(app: Express) {
-  // フレーム画像を提供するための静的ファイルの設定
+export async function registerRoutes(app: Express) {
+  // アップロードディレクトリの設定
   const framesPath = path.join(process.cwd(), 'uploads/frames');
+  const uploadsPath = path.join(process.cwd(), 'uploads');
+  
+  // ディレクトリの作成
+  await mkdir(uploadsPath, { recursive: true });
+  await mkdir(framesPath, { recursive: true });
   app.use('/frames', express.static(framesPath));
+  
+  // Get list of available videos
+  app.get("/api/videos", async (req, res) => {
+    try {
+      const files = await fs.readdir(uploadsPath);
+      const videos = files.filter(file => file.endsWith('.mov'));
+      res.json(videos);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to list videos" });
+    }
+  });
+
   // Upload video and analyze
   app.post("/api/upload", upload.single("video"), async (req: MulterRequest, res) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ error: "No video uploaded" });
+      let videoPath: string;
+      let title: string;
+      
+      if (req.body.existingVideo) {
+        videoPath = path.join(uploadsPath, req.body.existingVideo);
+        title = req.body.existingVideo;
+      } else if (req.file) {
+        videoPath = req.file.path;
+        title = req.file.originalname;
+        console.log("Video uploaded:", videoPath);
+      } else {
+        return res.status(400).json({ error: "No video provided" });
       }
 
-      console.log("Video uploaded:", req.file.path);
+      // フレームディレクトリをクリーンアップ
+      try {
+        const frames = await fs.readdir(framesPath);
+        await Promise.all(
+          frames.map(frame => fs.unlink(path.join(framesPath, frame)))
+        );
+        console.log("Cleaned up frames directory");
+      } catch (error) {
+        console.error("Failed to cleanup frames:", error);
+      }
       
-      const analysis = await analyzeVideo(req.file.path);
+      const analysis = await analyzeVideo(videoPath);
       console.log("Video analysis completed");
       
       const manual = await db.insert(manuals).values({
-        title: req.file.originalname,
-        videoPath: req.file.path,
+        title,
+        videoPath,
         content: analysis,
       }).returning();
 
