@@ -26,6 +26,7 @@ export default function ScreenshotSelector({
     queryKey: ["screenshots", manualId, time],
     queryFn: () => generateScreenshots(manualId, time),
     enabled: Boolean(time && time.match(/^\d{2}:\d{2}$/)),
+    refetchOnWindowFocus: false,
     staleTime: Infinity,
   });
 

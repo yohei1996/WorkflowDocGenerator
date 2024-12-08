@@ -17,6 +17,12 @@ export default function ManualEditor({ manual, onSave }: ManualEditorProps) {
   const handleStepUpdate = (index: number, updates: Partial<ManualStep>) => {
     const newSteps = [...steps];
     newSteps[index] = { ...newSteps[index], ...updates };
+    
+    // タイムスタンプが更新された場合、スクリーンショットをリセット
+    if ('time' in updates) {
+      newSteps[index].screenshotPath = undefined;
+    }
+    
     setSteps(newSteps);
   };
 
