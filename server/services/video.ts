@@ -26,40 +26,40 @@ function parseTimestamp(timestamp: string): number {
 export async function generateScreenshots(
   videoPath: string,
   timestamp: string,
-  count = 5
+  count = 1
 ): Promise<string[]> {
   // フレームを生成して保存
   try {
     const baseSeconds = parseTimestamp(timestamp);
     const screenshots: string[] = [];
-    const offsets = [-2, -1, 0, 1, 2];
+    
+    // タイムスタンプをhh_mm形式に変換
+    const minutes = Math.floor(baseSeconds / 60);
+    const seconds = baseSeconds % 60;
+    const timeStr = `${minutes.toString().padStart(2, '0')}_${seconds.toString().padStart(2, '0')}`;
+    
+    const filename = `${timeStr}.png`;
+    const outputPath = path.join(framesDir, filename);
 
-    for (const offset of offsets) {
-      const time = Math.max(0, baseSeconds + offset);
-      const filename = `${path.parse(videoPath).name}-${Date.now()}-${offset}.jpg`;
-      const outputPath = path.join(framesDir, filename);
+    await new Promise<void>((resolve, reject) => {
+      ffmpeg(videoPath)
+        .screenshots({
+          timestamps: [baseSeconds],
+          filename: filename,
+          folder: framesDir,
+          size: "1280x720"
+        })
+        .on("end", () => {
+          console.log(`Generated frame: ${outputPath}`);
+          resolve();
+        })
+        .on("error", (err) => {
+          console.error(`Frame generation error: ${err.message}`);
+          reject(err);
+        });
+    });
 
-      await new Promise<void>((resolve, reject) => {
-        ffmpeg(videoPath)
-          .screenshots({
-            timestamps: [time],
-            filename: filename,
-            folder: framesDir,
-            size: "1280x720"
-          })
-          .on("end", () => {
-            console.log(`Generated frame: ${outputPath}`);
-            resolve();
-          })
-          .on("error", (err) => {
-            console.error(`Frame generation error: ${err.message}`);
-            reject(err);
-          });
-      });
-
-      screenshots.push(`/frames/${filename}`);
-    }
-
+    screenshots.push(`/frames/${filename}`);
     return screenshots;
   } catch (error) {
     console.error("Screenshot generation failed:", error);
