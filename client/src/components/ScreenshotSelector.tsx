@@ -59,7 +59,7 @@ export default function ScreenshotSelector({
     if (value.match(/^\d{2}:\d{2}$/)) {
       const [minutes, seconds] = value.split(':').map(Number);
       if (minutes < 60 && seconds < 60) {
-        onTimeChange(value);
+        onTimeChange?.(value);
         onSelect("");
       }
     }

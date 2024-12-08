@@ -55,7 +55,6 @@ export default function ManualEditor({ manual, onSave }: ManualEditorProps) {
           </div>
 
           <div className="space-y-4">
-            <div className="font-medium mb-2">Screenshot Preview</div>
             <ScreenshotSelector
               manualId={manual.id}
               time={step.time}
